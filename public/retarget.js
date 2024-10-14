@@ -21,7 +21,7 @@
             }
             return cookieObject;
         }, {});
-    }
+    } 
 
     let cookies = getCookies();
     let requestData = {
