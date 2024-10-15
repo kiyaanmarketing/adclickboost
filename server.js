@@ -8,7 +8,7 @@ require("dotenv").config();
 const corsMiddleware = require("./middleware/corsMiddleware");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-
+const trackingRoutes = require('./routes/tracking');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,6 +16,39 @@ const port = process.env.PORT || 3000;
 app.use(corsMiddleware);
 app.use(bodyParser.json());
 app.use(cors());
+const jsonFilePath = path.join(__dirname, 'trackingUrls.json')
+
+// Function to read trackingUrls from JSON file
+const readTrackingUrls = () => {
+  const fileContent = fs.readFileSync(jsonFilePath, 'utf8');
+  return JSON.parse(fileContent);
+};
+
+
+// API to update trackingUrls
+app.post('/update-url', (req, res) => {
+  const { hostname, url } = req.body;
+
+  if (!hostname || !url) {
+    return res.status(400).json({ message: 'Hostname and URL are required' });
+  }
+
+
+  const trackingUrls = readTrackingUrls();
+
+
+  trackingUrls[hostname] = url;
+
+ 
+  fs.writeFile(jsonFilePath, JSON.stringify(trackingUrls, null, 2), (err) => {
+    if (err) {
+      console.error('Error writing to file:', err);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+    return res.status(200).json({ message: 'URL updated successfully' });
+  });
+});
 
 app.post("/api/save-client-data", async (req, res) => {
   const { clientId, referrer, utmSource, utmMedium, utmCampaign } = req.body;
@@ -130,9 +163,7 @@ const trackingUrls = {
   'storeus.com' : 'https://clk.omgt4.com/?PID=54859&AID=2356115',
   'my.trapo.asia': ' https://invle.co/cllqv1g',
   'tedbaker.ae' : 'https://clk.omgt4.com/?PID=55760&AID=2103072',
-  'www.justherbs.in' : 'https://tracking.kiyaanservices.com/clk?offer_id=2591&aff_id=86',
-
-    
+  'www.justherbs.in' : 'https://tracking.kiyaanservices.com/clk?offer_id=2591&aff_id=86', 
 
 };
 
@@ -322,27 +353,53 @@ app.get("/clear-session", (req, res) => {
 
 
 // Endpoint to track users and return the affiliate URL
+// app.post('/api/track-user', async (req, res) => {
+//   const { url, referrer, unique_id,origin } = req.body;
+
+//   // Validate the incoming data
+//   if (!url || !unique_id) {
+//       return res.status(400).json({ success: false, error: 'Invalid request data' });
+//   }
+
+//   // const affiliateUrl =
+//   // trackingUrls[origin] || "https://tracktraffics.com";
+//   try {
+//     const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
+//     // Respond with the generated affiliate URL
+//     //const affiliateUrl = affiliateData.affiliateUrl;
+//   res.json({ success: true, affiliate_url: affiliateData });
+//   } catch (error) {
+//     console.error(error);
+//   }
+
+  
+// });
+
 app.post('/api/track-user', async (req, res) => {
   const { url, referrer, unique_id,origin } = req.body;
 
-  // Validate the incoming data
   if (!url || !unique_id) {
       return res.status(400).json({ success: false, error: 'Invalid request data' });
   }
 
-  // const affiliateUrl =
-  // trackingUrls[origin] || "https://tracktraffics.com";
   try {
-    const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
-    // Respond with the generated affiliate URL
-    //const affiliateUrl = affiliateData.affiliateUrl;
-  res.json({ success: true, affiliate_url: affiliateData });
-  } catch (error) {
-    console.error(error);
-  }
+    fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
+      if (err) {
+        return res.status(500).json({ success: false, error: 'Error reading tracking URLs' });
+      }
 
-  
+      const trackingAllUrls = JSON.parse(data);
+      const affiliateUrl = trackingAllUrls[origin] || "https://tracktraffics.com";
+
+      res.json({ success: true, affiliate_url: affiliateUrl });
+    });
+  }  catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
 });
+
+
 
 // Fallback pixel endpoint (optional)
 app.get('/api/fallback-pixel', (req, res) => {
@@ -431,7 +488,16 @@ app.get('/aff_retag', async (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/api', trackingRoutes);
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Serve the manage tracking URLs page
+app.get('/manage-tracking-urls', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manageTracking.html'));
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
