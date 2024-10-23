@@ -116,11 +116,11 @@ const currentDateTime = getCurrentDateTime();
     return result.Items;
   } catch (err) {
     console.error('Error retrieving tracking All data:', err);
-    res.status(500).json({ error: 'Error retrieving tracking All data' });
+    //res.status(500).json({ error: 'Error retrieving tracking All data' });
   }
 };
 
-console.log("getAllHostName",getAllHostName('Tracking').then((result) => console.log("prom result=> ",result)))
+console.log("getAllHostName",getAllHostName('HostName').then((result) => console.log("prom result=> ",result)))
 
 
 const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
