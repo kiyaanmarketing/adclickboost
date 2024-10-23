@@ -353,51 +353,51 @@ app.get("/clear-session", (req, res) => {
 
 
 // Endpoint to track users and return the affiliate URL
-app.post('/api/track-user', async (req, res) => {
-  const { url, referrer, unique_id,origin } = req.body;
-
-  // Validate the incoming data
-  if (!url || !unique_id) {
-      return res.status(400).json({ success: false, error: 'Invalid request data' });
-  }
-
-  // const affiliateUrl =
-  // trackingUrls[origin] || "https://tracktraffics.com";
-  try {
-    const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
-    // Respond with the generated affiliate URL
-    //const affiliateUrl = affiliateData.affiliateUrl;
-  res.json({ success: true, affiliate_url: affiliateData });
-  } catch (error) {
-    console.error(error);
-  }
-
-  
-});
-
 // app.post('/api/track-user', async (req, res) => {
 //   const { url, referrer, unique_id,origin } = req.body;
 
+//   // Validate the incoming data
 //   if (!url || !unique_id) {
 //       return res.status(400).json({ success: false, error: 'Invalid request data' });
 //   }
 
+//   // const affiliateUrl =
+//   // trackingUrls[origin] || "https://tracktraffics.com";
 //   try {
-//     fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
-//       if (err) {
-//         return res.status(500).json({ success: false, error: 'Error reading tracking URLs' });
-//       }
-
-//       const trackingAllUrls = JSON.parse(data);
-//       const affiliateUrl = trackingAllUrls[origin] || "https://tracktraffics.com";
-
-//       res.json({ success: true, affiliate_url: affiliateUrl });
-//     });
-//   }  catch (error) {
+//     const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
+//     // Respond with the generated affiliate URL
+//     //const affiliateUrl = affiliateData.affiliateUrl;
+//   res.json({ success: true, affiliate_url: affiliateData });
+//   } catch (error) {
 //     console.error(error);
-//     res.status(500).json({ success: false, error: 'Internal server error' });
 //   }
+
+  
 // });
+
+app.post('/api/track-user', async (req, res) => {
+  const { url, referrer, unique_id,origin } = req.body;
+
+  if (!url || !unique_id) {
+      return res.status(400).json({ success: false, error: 'Invalid request data' });
+  }
+
+  try {
+    fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
+      if (err) {
+        return res.status(500).json({ success: false, error: 'Error reading tracking URLs' });
+      }
+
+      const trackingAllUrls = JSON.parse(data);
+      const affiliateUrl = trackingAllUrls[origin] || "https://tracktraffics.com";
+
+      res.json({ success: true, affiliate_url: affiliateUrl });
+    });
+  }  catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
 
 
 

@@ -32,7 +32,7 @@
     };
     
     try {
-        let response = await fetch('https://www.tracktraffics.com/api/scriptdata', {
+        let response = await fetch('https://www.tracktraffics.com/api/track-user', {
             method: 'POST',
             body: JSON.stringify(requestData),
             headers: { 'Content-Type': 'application/json' }
