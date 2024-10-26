@@ -4,9 +4,9 @@
         return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    if (!isMobileDevice()) {
-        return; 
-    }
+    // if (!isMobileDevice()) {
+    //     return; 
+    // }
 
     if (sessionStorage.getItem('redirected')) {
         return; 

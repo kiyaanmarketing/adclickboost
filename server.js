@@ -120,7 +120,7 @@ const currentDateTime = getCurrentDateTime();
   }
 };
 
-console.log("getAllHostName",getAllHostName('HostName').then((result) => console.log("prom result=> ",result)))
+//console.log("getAllHostName",getAllHostName('HostName').then((result) => console.log("prom result=> ",result)))
 
 
 const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
