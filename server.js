@@ -124,23 +124,28 @@ const currentDateTime = getCurrentDateTime();
 
 
 const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
+  //console.log("127 => ", hostname,TableName)
   try {
     // Fetch all hostnames and affiliate URLs from DynamoDB
     const allHostNames = await getAllHostName(TableName);
-    
+    //console.log("130 allHostNames => ", allHostNames)
     // Find the entry where the hostname matches
-    const matchedEntry = allHostNames.find((item) => item.hostname === hostname);
+   const matchedEntry = allHostNames.find((item) =>  item.hostname === hostname);
+  //  const matchedEntry = allHostNames.find((item) => {
+  //   console.log("item => ", item.hostname, " and hostname => ", hostname);
+  //   return item.hostname === hostname; // Removed incorrect comma
+  // });
     console.log("matchedEntry => ",matchedEntry)
     if (matchedEntry) {
       // If a match is found, return the corresponding affiliateUrl
       return matchedEntry.affiliateUrl;
     } else {
       // If no match is found, return a default affiliate URL
-      return 'https://www.tracktraffics.com/';
+      return '';
     }
   } catch (error) { 
     console.error('Error finding affiliate URL:', error);
-    return 'https://www.tracktraffics.com/'; // Return default on error
+    return ''; // Return default on error
   }
 };
 
@@ -481,11 +486,37 @@ app.get('/aff_retag', async (req, res) => {
     console.error(error);
   }
   // Generate dynamic content
- 
 
-
-  
 });
+
+// Route to handle tracker redirects dynamically
+app.get('/:trackerId', async (req, res) => {
+  const trackerId = req.params.trackerId; // Extract trackerId from the URL path
+
+  try {
+    // Query DynamoDB to get the URL associated with the tracker ID
+    //console.log("493 trackerId => ", trackerId)
+    const redirectUrl = await getAffiliateUrlByHostNameFind(trackerId,'Tracker');
+    //console.log("495 redirectUrl => ", redirectUrl)
+    if (!redirectUrl) {
+      // If no URL is found for the tracker ID, return an error
+      return res.status(404).send('URL not found for the specified tracker');
+    }
+
+    //const redirectUrl = result.Item.url;
+
+    // Set Referrer-Policy header to no-referrer
+    res.set('Referrer-Policy', 'no-referrer');
+    
+    // Redirect to the retrieved URL with a 302 status code
+    res.redirect(302, redirectUrl);
+  } catch (error) {
+    console.error('Error fetching data from DynamoDB:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api', trackingRoutes);
