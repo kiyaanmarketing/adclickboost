@@ -526,7 +526,7 @@ app.get('/', (req, res) => {
 });
 
 // Serve the manage tracking URLs page
-app.get('/manage-tracking-urls', (req, res) => {
+app.get('/api/manage-tracking-urls', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manageTracking.html'));
 });
 
