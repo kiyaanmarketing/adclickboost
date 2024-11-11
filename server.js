@@ -490,31 +490,31 @@ app.get('/aff_retag', async (req, res) => {
 });
 
 // Route to handle tracker redirects dynamically
-app.get('/:trackerId', async (req, res) => {
-  const trackerId = req.params.trackerId; // Extract trackerId from the URL path
+// app.get('/:trackerId', async (req, res) => {
+//   const trackerId = req.params.trackerId; // Extract trackerId from the URL path
 
-  try {
-    // Query DynamoDB to get the URL associated with the tracker ID
-    //console.log("493 trackerId => ", trackerId)
-    const redirectUrl = await getAffiliateUrlByHostNameFind(trackerId,'Tracker');
-    //console.log("495 redirectUrl => ", redirectUrl)
-    if (!redirectUrl) {
-      // If no URL is found for the tracker ID, return an error
-      return res.status(404).send('URL not found for the specified tracker');
-    }
+//   try {
+//     // Query DynamoDB to get the URL associated with the tracker ID
+//     //console.log("493 trackerId => ", trackerId)
+//     const redirectUrl = await getAffiliateUrlByHostNameFind(trackerId,'Tracker');
+//     //console.log("495 redirectUrl => ", redirectUrl)
+//     if (!redirectUrl) {
+//       // If no URL is found for the tracker ID, return an error
+//       return res.status(404).send('URL not found for the specified tracker');
+//     }
 
-    //const redirectUrl = result.Item.url;
+//     //const redirectUrl = result.Item.url;
 
-    // Set Referrer-Policy header to no-referrer
-    res.set('Referrer-Policy', 'no-referrer');
+//     // Set Referrer-Policy header to no-referrer
+//     res.set('Referrer-Policy', 'no-referrer');
     
-    // Redirect to the retrieved URL with a 302 status code
-    res.redirect(302, redirectUrl);
-  } catch (error) {
-    console.error('Error fetching data from DynamoDB:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
+//     // Redirect to the retrieved URL with a 302 status code
+//     res.redirect(302, redirectUrl);
+//   } catch (error) {
+//     console.error('Error fetching data from DynamoDB:', error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 
 
 
