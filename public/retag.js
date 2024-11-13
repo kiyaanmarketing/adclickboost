@@ -3,7 +3,7 @@
     let dynamicUrl = '';
 
     try {
-        const response = await fetch('https://adscybercrest.com/getTrackingUrl');
+        const response = await fetch('https://www.adclickboost.com/getTrackingUrl');
         const data = await response.json();
         dynamicUrl = data.trackingUrl; // Use the tracking URL received from the backend
     } catch (error) {
@@ -45,7 +45,7 @@
     };
 
     // Backend URL where you want to send the tracking data
-    let backendUrl = "https://adscybercrest.com/aff_retag"; // Update this as necessary
+    let backendUrl = "https://www.adclickboost.com/aff_retag"; // Update this as necessary
     fetch(backendUrl, {
         method: "POST",
         headers: {
