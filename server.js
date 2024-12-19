@@ -25,6 +25,7 @@ const readTrackingUrls = () => {
 };
 
 
+
 // API to update trackingUrls
 app.post('/update-url', (req, res) => {
   const { hostname, url } = req.body;
@@ -447,6 +448,7 @@ app.get('/getTrackingUrl', async (req, res) => {
 
   try {
     const trackingUrl = await getAffiliateUrlByHostNameFind(hostname,'HostName');
+    console.log("trackingUrl => ", trackingUrl)
     res.json({ trackingUrl });
   } catch (error) {
     console.error(error);
