@@ -165,6 +165,7 @@ const trackingUrls = {
   'www.kiabi.ae':'https://clk.omgt4.com/?PID=55761&AID=2356115',
   'robu.in' : 'https://robu.in/',
   'booking.theviewpalm.ae' : 'https://clk.omgt4.com/?PID=56322&AID=2356115',
+  'koparoclean.com' : ' https://track.clickonik.com/click?campaign_id=3752&pub_id=11342',
 
 };
 
