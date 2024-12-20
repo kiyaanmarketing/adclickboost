@@ -516,7 +516,22 @@ app.get('/affid/:trackerId', async (req, res) => {
   }
 });
 
+app.post('/api/track-usersec', async (req, res) => {
+  const { url, referrer, unique_id, origin } = req.body;
 
+  if (!url || !unique_id) {
+      return res.status(400).json({ success: false, error: 'Invalid request data' });
+  }
+
+  try {
+      const affiliateUrl = await getAffiliateUrlByHostNameFind(origin, 'HostName');
+      console.log("affiliateUrl => ", affiliateUrl);
+      res.json({ success: true, affiliate_url: affiliateUrl });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api', trackingRoutes);
