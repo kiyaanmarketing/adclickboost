@@ -176,8 +176,9 @@ app.post("/api/scriptdata", async (req, res) => {
    const responseUrl = trackingUrls[origin] || "";
 
   try {
-    //const responseUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
-    const responseUrl = trackingUrls[origin] || "";
+    
+    const responseUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    //const responseUrl = trackingUrls[origin] || "";
     console.log('Affiliate URL:', responseUrl);
     // Send a JSON response with the determined URL
     res.json({ url: responseUrl });
@@ -365,8 +366,9 @@ app.post('/api/track-user', async (req, res) => {
 
   
   try {
-    //const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
-     const affiliateUrl = trackingUrls[origin] || "";
+    
+    const affiliateUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+     //const affiliateUrl = trackingUrls[origin] || "";
     // Respond with the generated affiliate URL
     //const affiliateUrl = affiliateData.affiliateUrl;
   res.json({ success: true, affiliate_url: affiliateUrl });
