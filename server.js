@@ -152,24 +152,19 @@ const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
 
 const trackingUrls = {
   
-  'www.skyviewsdubai.com': 'https://clk.omgt4.com/?PID=56191&AID=2103072',
-  'shop.wildlypure.co': 'https://tracking.kiyaanservices.com/clk?offer_id=3492&aff_id=86',
-  'www.studio7thailand.com': 'https://invle.co/cllq5i5' ,
-  'www.dubaistore.com' : 'https://clk.omgt4.com/?PID=53640&AID=2103072',
-  'www.enamor.co.in' : 'https://tracking.kiyaanservices.com/clk?offer_id=5010&aff_id=86',
-  'www.temptation-experience.com ': 'https://tracking.icubeswire.co/aff_c?offer_id=3393&aff_id=4815',
-  'beardo.in': 'https://tracking.kiyaanservices.com/clk?offer_id=2529&aff_id=86',
-  'tedbaker.sa':'https://clk.omgt4.com/?PID=55982&AID=2103072',
-  'www.bnn.in.th': 'https://tracking.kiyaanservices.com/clk?offer_id=2544&aff_id=86',
-  'patuhhealthcare.com' : 'https://optimistix.gotrackier.com/click?campaign_id=115&pub_id=123',
-  'parisrhone.com' : 'https://parisrhone.com/?irclickid=SnHQUPw5GxyKU6tXQ3xOmykMUkCwLQzAZ2kLyw0&sharedid=&irpid=2615427&irgwc=1&utm_source=affiliate&utm_medium=IMPACT&iradid=1811170',
-  'www.matahari.com' : 'https://invle.co/cllq3gg',
-  'www.wondergifts.ae':'https://clk.omgt4.com/?PID=56022&AID=2103072',
-  'www.scienceandhumans.com':'https://nomadz.gotrackier.com/click?campaign_id=4647&pub_id=47',
-  'storeus.com' : 'https://clk.omgt4.com/?PID=54859&AID=2356115',
-  'my.trapo.asia': ' https://invle.co/cllqv1g',
-  'tedbaker.ae' : 'https://clk.omgt4.com/?PID=55760&AID=2103072',
-  'www.justherbs.in' : 'https://tracking.kiyaanservices.com/clk?offer_id=2591&aff_id=86', 
+  'www.marksandspencerme.com': 'https://clk.omgt4.com/?PID=55681&AID=2356115',
+  'www.flyadeal.com': 'https://www.flyadeal.com/en/search-flight?utm_source=adsicube&utm_medium=icubes&utm_campaign=4828',
+  'www.justherbs.in' : 'https://mobilogi.gotrackier.com/click?campaign_id=489&pub_id=308',
+  'insightcosmetics.in': 'https://track.optimistixmedia.com/c?o=21373422&m=12608&a=628261&aff_click_id={replace_it}&sub_aff_id={replace_it}',
+  'www.eigeradventure.com': 'https://invol.co/cllwa2k',
+  'storeus.com': 'https://24dl8.ttrk.io/6736fab8a5dc7fda74153f62',
+  'sandro.sa': 'https://clk.omgt4.com/?PID=55979&AID=2356115',
+  'sg.trapo.asia': 'https://invle.co/cllu491',
+  'www.xcite.com': 'https://clk.omgt4.com/?PID=55728&AID=2356115',
+  'www.theuaelottery.ae':'https://clk.omgt4.com/?PID=56323&AID=2356115',
+  'www.kiabi.ae':'https://clk.omgt4.com/?PID=55761&AID=2356115',
+  'robu.in' : 'https://robu.in/',
+  'booking.theviewpalm.ae' : 'https://clk.omgt4.com/?PID=56322&AID=2356115',
 
 };
 
@@ -177,11 +172,11 @@ app.post("/api/scriptdata", async (req, res) => {
   const { url, referrer, coo, origin } = req.body;
 
   // Determine the tracking URL based on the origin
-  // const responseUrl =
-  //   trackingUrls[origin] || "https://tracktraffics.com";
+   const responseUrl = trackingUrls[origin] || "";
 
   try {
-    const responseUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    //const responseUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    const responseUrl = trackingUrls[origin] || "";
     console.log('Affiliate URL:', responseUrl);
     // Send a JSON response with the determined URL
     res.json({ url: responseUrl });
@@ -367,13 +362,13 @@ app.post('/api/track-user', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid request data' });
   }
 
-  // const affiliateUrl =
-  // trackingUrls[origin] || "https://tracktraffics.com";
+  
   try {
-    const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    //const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
+     const affiliateUrl = trackingUrls[origin] || "";
     // Respond with the generated affiliate URL
     //const affiliateUrl = affiliateData.affiliateUrl;
-  res.json({ success: true, affiliate_url: affiliateData });
+  res.json({ success: true, affiliate_url: affiliateUrl });
   } catch (error) {
     console.error(error);
   }
