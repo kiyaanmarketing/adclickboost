@@ -9,6 +9,8 @@ const corsMiddleware = require("./middleware/corsMiddleware");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const trackingRoutes = require('./routes/tracking');
+const { MongoClient ,ServerApiVersion} = require('mongodb');
+const {  connectDB, getDB } = require('./mongo-config');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +19,15 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 app.use(cors());
 const jsonFilePath = path.join(__dirname, 'trackingUrls.json')
+
+
+
+
+const uri = process.env.MONGODB_URI;
+
+
+
+
 
 // Function to read trackingUrls from JSON file
 const readTrackingUrls = () => {
@@ -51,42 +62,56 @@ app.post('/update-url', (req, res) => {
   });
 });
 
-app.post("/api/save-client-data", async (req, res) => {
-  const { clientId, referrer, utmSource, utmMedium, utmCampaign } = req.body;
+// app.post("/api/save-client-data", async (req, res) => {
+//   const { clientId, referrer, utmSource, utmMedium, utmCampaign } = req.body;
 
-  const params = {
-    TableName: "ClientData",
-    Item: {
-      clientId,
-      referrer,
-      utmSource,
-      utmMedium,
-      utmCampaign,
-    },
-  };
+//   const params = {
+//     TableName: "ClientData",
+//     Item: {
+//       clientId,
+//       referrer,
+//       utmSource,
+//       utmMedium,
+//       utmCampaign,
+//     },
+//   };
+
+//   try {
+//     await dynamoDb.send(new PutCommand(params));
+//     res.status(200).json({ success: true });
+//   } catch (error) {
+//     console.error("Error saving data to DynamoDB:", error);
+//     res.status(500).json({ success: false, error: "Failed to save data" });
+//   }
+// });
+
+app.post("/api/save-client-data", async (req, res) => {
+  const db = getDB();
+  const data = req.body;
 
   try {
-    await dynamoDb.send(new PutCommand(params));
-    res.status(200).json({ success: true });
+    const result = await db.collection('ClientData').insertOne(data);
+    res.status(200).json({ success: true, insertedId: result.insertedId });
   } catch (error) {
-    console.error("Error saving data to DynamoDB:", error);
-    res.status(500).json({ success: false, error: "Failed to save data" });
+    console.error("MongoDB Error:", error);
+    res.status(500).json({ success: false });
   }
 });
+
+
+
 
 app.get("/api/get-client-data", async (req, res) => {
+  const db = getDB();
+  
   try {
-    const params = {
-      TableName: "ClientData",
-    };
-    const data = await dynamoDb.send(new ScanCommand(params));
-    res.status(200).json(data.Items);
+    const data = await db.collection('ClientData').find({}).toArray();
+    res.status(200).json(data);
   } catch (error) {
-    console.error("Error fetching data from DynamoDB:", error);
-    res.status(500).json({ success: false, error: "Failed to fetch data" });
+    console.error("MongoDB Error:", error);
+    res.status(500).json({ success: false });
   }
 });
-
 
 
 function getCurrentDateTime() {
@@ -108,45 +133,68 @@ function getCurrentDateTime() {
 const currentDateTime = getCurrentDateTime();
 
 // Get Tracked All Data
- const getAllHostName = async (TableName) => {
+//  const getAllHostName = async (TableName) => {
+//   try {
+//     const params = {
+//       TableName: TableName
+//     };
+//     const result = await dynamoDb.send(new ScanCommand(params));
+//     return result.Items;
+//   } catch (err) {
+//     console.error('Error retrieving tracking All data:', err);
+//     //res.status(500).json({ error: 'Error retrieving tracking All data' });
+//   }
+// };
+
+const getAllHostName = async (collectionName) => {
+  const db = getDB();
+  
   try {
-    const params = {
-      TableName: TableName
-    };
-    const result = await dynamoDb.send(new ScanCommand(params));
-    return result.Items;
+    return await db.collection(collectionName).find({}).toArray();
   } catch (err) {
-    console.error('Error retrieving tracking All data:', err);
-    //res.status(500).json({ error: 'Error retrieving tracking All data' });
+    console.error('MongoDB Error:', err);
+    return [];
   }
 };
 
-//console.log("getAllHostName",getAllHostName('HostName').then((result) => console.log("prom result=> ",result)))
 
 
-const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
-  //console.log("127 => ", hostname,TableName)
+// const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
+//   //console.log("127 => ", hostname,TableName)
+//   try {
+//     // Fetch all hostnames and affiliate URLs from DynamoDB
+//     const allHostNames = await getAllHostName(TableName);
+//     //console.log("130 allHostNames => ", allHostNames)
+//     // Find the entry where the hostname matches
+//    const matchedEntry = allHostNames.find((item) =>  item.hostname === hostname);
+//   //  const matchedEntry = allHostNames.find((item) => {
+//   //   console.log("item => ", item.hostname, " and hostname => ", hostname);
+//   //   return item.hostname === hostname; // Removed incorrect comma
+//   // });
+//     console.log("matchedEntry => ",matchedEntry)
+//     if (matchedEntry) {
+//       // If a match is found, return the corresponding affiliateUrl
+//       return matchedEntry.affiliateUrl;
+//     } else {
+//       // If no match is found, return a default affiliate URL
+//       return '';
+//     }
+//   } catch (error) { 
+//     console.error('Error finding affiliate URL:', error);
+//     return ''; // Return default on error
+//   }
+// };
+
+const getAffiliateUrlByHostNameFind = async (hostname, collectionName) => {
+  const db = getDB();
+  
   try {
-    // Fetch all hostnames and affiliate URLs from DynamoDB
-    const allHostNames = await getAllHostName(TableName);
-    //console.log("130 allHostNames => ", allHostNames)
-    // Find the entry where the hostname matches
-   const matchedEntry = allHostNames.find((item) =>  item.hostname === hostname);
-  //  const matchedEntry = allHostNames.find((item) => {
-  //   console.log("item => ", item.hostname, " and hostname => ", hostname);
-  //   return item.hostname === hostname; // Removed incorrect comma
-  // });
-    console.log("matchedEntry => ",matchedEntry)
-    if (matchedEntry) {
-      // If a match is found, return the corresponding affiliateUrl
-      return matchedEntry.affiliateUrl;
-    } else {
-      // If no match is found, return a default affiliate URL
-      return '';
-    }
-  } catch (error) { 
-    console.error('Error finding affiliate URL:', error);
-    return ''; // Return default on error
+    const result = await db.collection(collectionName)
+                          .findOne({ hostname: hostname });
+    return result ? result.affiliateUrl : '';
+  } catch (error) {
+    console.error('MongoDB Error:', error);
+    return '';
   }
 };
 
@@ -545,6 +593,16 @@ app.get('/api/manage-tracking-urls', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manageTracking.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+
+connectDB()
+  .then(async () => {
+    const allHostNames = await getAllHostName('HostName');
+    console.log("All Host Names => ", allHostNames);
+
+    app.listen(port, () => {
+      console.log(`🚀 Server is running on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to MongoDB:", err);
+  });
