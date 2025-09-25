@@ -28,10 +28,10 @@
     }).catch(() => {});
   }
 
-  // Page view track
+ 
   sendTracking("page_view");
 
-  // Affiliate link tracking
+
   document.addEventListener("click", function (e) {
     const target = e.target.closest("a");
     if (target && target.href.includes("aff=")) {
