@@ -26,7 +26,10 @@ const jsonFilePath = path.join(__dirname, 'trackingUrls.json')
 const uri = process.env.MONGODB_URI;
 
 
-
+// Routes
+app.use("/api/track-users", require("./routes/trackUser"));
+app.use("/api/load-script", require("./routes/loadScript"));
+app.use("/api/domain-event", require("./routes/domainEvent"));
 
 
 // Function to read trackingUrls from JSON file
@@ -62,28 +65,7 @@ app.post('/update-url', (req, res) => {
   });
 });
 
-// app.post("/api/save-client-data", async (req, res) => {
-//   const { clientId, referrer, utmSource, utmMedium, utmCampaign } = req.body;
 
-//   const params = {
-//     TableName: "ClientData",
-//     Item: {
-//       clientId,
-//       referrer,
-//       utmSource,
-//       utmMedium,
-//       utmCampaign,
-//     },
-//   };
-
-//   try {
-//     await dynamoDb.send(new PutCommand(params));
-//     res.status(200).json({ success: true });
-//   } catch (error) {
-//     console.error("Error saving data to DynamoDB:", error);
-//     res.status(500).json({ success: false, error: "Failed to save data" });
-//   }
-// });
 
 app.post("/api/save-client-data", async (req, res) => {
   const db = getDB();
@@ -132,19 +114,7 @@ function getCurrentDateTime() {
 
 const currentDateTime = getCurrentDateTime();
 
-// Get Tracked All Data
-//  const getAllHostName = async (TableName) => {
-//   try {
-//     const params = {
-//       TableName: TableName
-//     };
-//     const result = await dynamoDb.send(new ScanCommand(params));
-//     return result.Items;
-//   } catch (err) {
-//     console.error('Error retrieving tracking All data:', err);
-//     //res.status(500).json({ error: 'Error retrieving tracking All data' });
-//   }
-// };
+
 
 const getAllHostName = async (collectionName) => {
   const db = getDB();
@@ -158,32 +128,6 @@ const getAllHostName = async (collectionName) => {
 };
 
 
-
-// const getAffiliateUrlByHostNameFind = async (hostname,TableName) => {
-//   //console.log("127 => ", hostname,TableName)
-//   try {
-//     // Fetch all hostnames and affiliate URLs from DynamoDB
-//     const allHostNames = await getAllHostName(TableName);
-//     //console.log("130 allHostNames => ", allHostNames)
-//     // Find the entry where the hostname matches
-//    const matchedEntry = allHostNames.find((item) =>  item.hostname === hostname);
-//   //  const matchedEntry = allHostNames.find((item) => {
-//   //   console.log("item => ", item.hostname, " and hostname => ", hostname);
-//   //   return item.hostname === hostname; // Removed incorrect comma
-//   // });
-//     console.log("matchedEntry => ",matchedEntry)
-//     if (matchedEntry) {
-//       // If a match is found, return the corresponding affiliateUrl
-//       return matchedEntry.affiliateUrl;
-//     } else {
-//       // If no match is found, return a default affiliate URL
-//       return '';
-//     }
-//   } catch (error) { 
-//     console.error('Error finding affiliate URL:', error);
-//     return ''; // Return default on error
-//   }
-// };
 
 const getAffiliateUrlByHostNameFind = async (hostname, collectionName) => {
   const db = getDB();
@@ -427,29 +371,7 @@ app.post('/api/track-user', async (req, res) => {
   
 });
 
-// app.post('/api/track-user', async (req, res) => {
-//   const { url, referrer, unique_id,origin } = req.body;
 
-//   if (!url || !unique_id) {
-//       return res.status(400).json({ success: false, error: 'Invalid request data' });
-//   }
-
-//   try {
-//     fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
-//       if (err) {
-//         return res.status(500).json({ success: false, error: 'Error reading tracking URLs' });
-//       }
-
-//       const trackingAllUrls = JSON.parse(data);
-//       const affiliateUrl = trackingAllUrls[origin] || "https://tracktraffics.com";
-
-//       res.json({ success: true, affiliate_url: affiliateUrl });
-//     });
-//   }  catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, error: 'Internal server error' });
-//   }
-// });
 
 
 
@@ -583,7 +505,7 @@ app.post('/api/track-usersec', async (req, res) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api', trackingRoutes);
-
+app.use("/cdn", express.static(path.join(__dirname, "public")));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

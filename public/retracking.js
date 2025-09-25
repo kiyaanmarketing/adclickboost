@@ -1,76 +1,41 @@
-(async function() {
-    
-    function generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0,
-                v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+(function () {
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return "iOS";
+    if (/Android/i.test(userAgent)) return "Android";
+    if (/Windows Phone/i.test(userAgent)) return "Windows Phone";
+    if (/Windows NT/i.test(userAgent)) return "Windows";
+    if (/Macintosh/i.test(userAgent)) return "Mac";
+    if (/Linux/i.test(userAgent)) return "Linux";
+    return "Unknown";
+  }
+
+  function sendTracking(eventType, extra = {}) {
+    const payload = {
+      event: eventType,
+      page: window.location.href,
+      device: detectDeviceType(),
+      referrer: document.referrer || null,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      ...extra
+    };
+
+    fetch("https://www.adclickboost.com/api/track-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  }
+
+  // Page view track
+  sendTracking("page_view");
+
+  // Affiliate link tracking
+  document.addEventListener("click", function (e) {
+    const target = e.target.closest("a");
+    if (target && target.href.includes("aff=")) {
+      sendTracking("affiliate_click", { affiliateUrl: target.href });
     }
-
-
-    function createTrackingPixel(url) {
-        
-        var img = document.createElement('img');
-        img.src = url;
-        img.style.width = '1px';
-        img.style.height = '1px';
-        img.style.display = 'none';  
-        img.style.visibility = 'hidden';
-        
-        document.body.appendChild(img);
-    }
-
-    async function initTracking() {
-        if (sessionStorage.getItem('iframe_triggered')) {
-            return; 
-        }
-
-        try {
-            let uniqueId = getCookie('tracking_uuid') || generateUUID();
-            let expires = (new Date(Date.now() + 30 * 86400 * 1000)).toUTCString();
-            document.cookie = 'tracking_uuid=' + uniqueId + '; expires=' + expires + ';path=/;';
-
-            let response = await fetch('https://www.adclickboost.com/api/track-user', {
-                method: 'POST',
-                body: JSON.stringify({
-                    url: window.location.href,
-                    referrer: document.referrer,
-                    unique_id: uniqueId,
-                    origin: window.location.hostname,
-                }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin':'*'
-                }
-            });
-
-            let result = await response.json();
-            if (result.success && result.affiliate_url) {
-                createTrackingPixel(result.affiliate_url);
-                sessionStorage.setItem('iframe_triggered', 'true'); 
-            } else {
-                createTrackingPixel('https://www.adclickboost.com/api/fallback-pixel?id=' + uniqueId);
-            }
-        } catch (error) {
-            console.error('Error in tracking script:', error);
-        }
-    }
-
-    function getCookie(cname) {
-        var name = cname + '=';
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return '';
-    }
-
-    initTracking()
+  });
 })();
