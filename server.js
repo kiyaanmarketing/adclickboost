@@ -127,6 +127,21 @@ const getAllHostName = async (collectionName) => {
   }
 };
 
+const getAffiliateUrlByHostNameFindActive = async (hostname, collectionName) => {
+  const db = getDB();
+  
+  try {
+    const result = await db.collection(collectionName)
+                          .findOne({ 
+                            hostname: hostname, 
+                            status: "active"  // <-- only active hosts
+                          });
+    return result ? result.affiliateUrl : '';
+  } catch (error) {
+    console.error('MongoDB Error:', error);
+    return '';
+  }
+};
 
 
 const getAffiliateUrlByHostNameFind = async (hostname, collectionName) => {
@@ -359,7 +374,7 @@ app.post('/api/track-user', async (req, res) => {
   
   try {
     
-    const affiliateUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    const affiliateUrl = await getAffiliateUrlByHostNameFindActive(origin,'HostNameN');
      //const affiliateUrl = trackingUrls[origin] || "";
     // Respond with the generated affiliate URL
     //const affiliateUrl = affiliateData.affiliateUrl;
@@ -415,7 +430,7 @@ app.get('/getTrackingUrl', async (req, res) => {
   const hostname = req.hostname; // Get the hostname from the request
 
   try {
-    const trackingUrl = await getAffiliateUrlByHostNameFind(hostname,'HostName');
+    const trackingUrl = await getAffiliateUrlByHostNameFindActive(hostname,'HostNameN');
     console.log("trackingUrl => ", trackingUrl)
     res.json({ trackingUrl });
   } catch (error) {

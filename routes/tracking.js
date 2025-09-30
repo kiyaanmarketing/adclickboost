@@ -2,11 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../mongo-config');
 
-const collectionName = 'HostName';
+const collectionName = 'HostNameN';
 
 router.get('/tracking-urls', async (req, res) => {
   try {
     const db = getDB();
+      if (!db) {
+      console.error("DB not initialized!");
+      return res.status(500).json({ message: 'Database not connected' });
+    }
     const urls = await db.collection(collectionName).find().toArray();
     res.json(urls);
   } catch (error) {
@@ -18,7 +22,7 @@ router.get('/tracking-urls', async (req, res) => {
 
 // ✅ Add or update a URL
 router.post('/add-url', async (req, res) => {
-  const { hostname, affiliateUrl } = req.body;
+  const { hostname, affiliateUrl, status} = req.body;
 
   try {
     const db = getDB();
@@ -27,10 +31,10 @@ router.post('/add-url', async (req, res) => {
     if (existing) {
       await db.collection(collectionName).updateOne(
         { hostname },
-        { $set: { affiliateUrl } }
+        { $set: { affiliateUrl, status: status || existing.status || "active" } }
       );
     } else {
-      await db.collection(collectionName).insertOne({ hostname, affiliateUrl });
+      await db.collection(collectionName).insertOne({ hostname, affiliateUrl,status: status || "active" });
     }
 
     res.json({ message: 'URL added/updated successfully' });
@@ -42,7 +46,7 @@ router.post('/add-url', async (req, res) => {
 
 // ✅ Edit hostname or URL
 router.post('/edit-url', async (req, res) => {
-  const { editHostname, newHostname, newUrl } = req.body;
+  const { editHostname, newUrl, newStatus } = req.body;
 
   try {
     const db = getDB();
@@ -52,31 +56,14 @@ router.post('/edit-url', async (req, res) => {
       return res.status(404).json({ message: 'Original hostname not found' });
     }
 
-    if (editHostname === newHostname && existing.affiliateUrl === newUrl) {
+       if (existing.affiliateUrl === newUrl && existing.status === newStatus) {
       return res.status(400).json({ message: 'No changes made' });
     }
+ 
 
-    // If hostname changed, check for duplicate
-    if (editHostname !== newHostname) {
-      const duplicate = await db.collection(collectionName).findOne({ hostname: newHostname });
-      if (duplicate) {
-        return res.status(400).json({ message: 'New hostname already exists' });
-      }
-
-      await db.collection(collectionName).insertOne({
-        hostname: newHostname,
-        affiliateUrl: newUrl || existing.affiliateUrl
-      });
-
-      await db.collection(collectionName).deleteOne({ hostname: editHostname });
-
-      return res.json({ message: 'Hostname and URL updated successfully' });
-    }
-
-    // Just update the URL
-    await db.collection(collectionName).updateOne(
-      { hostname: editHostname },
-      { $set: { affiliateUrl: newUrl } }
+     await db.collection(collectionName).updateOne(
+      { hostname },
+      { $set: { affiliateUrl: newUrl, status: newStatus || existing.status || "active" } }
     );
 
     res.json({ message: 'URL updated successfully' });
@@ -92,7 +79,12 @@ router.delete('/delete-url/:hostname', async (req, res) => {
 
   try {
     const db = getDB();
-    await db.collection(collectionName).deleteOne({ hostname });
+    // await db.collection(collectionName).deleteOne({ hostname });
+      const result = await db.collection(collectionName).deleteOne({ hostname });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Hostname not found' });
+    }
     res.json({ message: 'URL deleted successfully' });
   } catch (error) {
     console.error('Error deleting URL:', error);
@@ -100,6 +92,28 @@ router.delete('/delete-url/:hostname', async (req, res) => {
   }
 });
 
+
+// ✅ Toggle Status Active/Inactive
+router.post('/toggle-status', async (req, res) => {
+  const { hostname, newStatus } = req.body;
+  try {
+    const db = getDB();
+    if (!db) return res.status(500).json({ message: "Database not connected" });
+
+    const url = await db.collection(collectionName).findOne({ hostname });
+    if (!url) return res.status(404).json({ message: "Hostname not found" });
+
+    await db.collection(collectionName).updateOne(
+      { hostname },
+      { $set: { status: newStatus } }
+    );
+
+    res.json({ message: `Status updated to ${newStatus}`, status: newStatus });
+  } catch (error) {
+    console.error("Error toggling status:", error.message);
+    res.status(500).json({ message: "Error toggling status" });
+  }
+});
 
 
 module.exports = router;
