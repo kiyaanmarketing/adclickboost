@@ -184,7 +184,7 @@ app.post("/api/scriptdata", async (req, res) => {
 
   try {
     
-    const responseUrl = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    const responseUrl = await getAffiliateUrlByHostNameFindActive(origin,'HostNameN');
     //const responseUrl = trackingUrls[origin] || "";
     console.log('Affiliate URL:', responseUrl);
     // Send a JSON response with the determined URL
@@ -275,7 +275,7 @@ app.post("/api/datascript", async (req, res) => {
   // trackingUrls[origin] || "https://tracktraffics.com";
 
   try {
-    const affiliateData = await getAffiliateUrlByHostNameFind(origin,'HostName');
+    const affiliateData = await getAffiliateUrlByHostNameFindActive(origin,'HostNameN');
     console.log('Affiliate URL:', affiliateData);
   
     res.json({name:'optimistix',url:affiliateData});
@@ -451,7 +451,7 @@ app.get('/aff_retag', async (req, res) => {
   }
 
   try {
-    const trackingUrl = await getAffiliateUrlByHostNameFind(hostname,'HostName');
+    const trackingUrl = await getAffiliateUrlByHostNameFindActive(hostname,'HostNameN');
 
     const dynamicContent = `
     <script>
@@ -509,7 +509,7 @@ app.post('/api/track-usersec', async (req, res) => {
   }
 
   try {
-      const affiliateUrl = await getAffiliateUrlByHostNameFind(origin, 'HostName');
+      const affiliateUrl = await getAffiliateUrlByHostNameFindActive(origin, 'HostNameN');
       console.log("affiliateUrl => ", affiliateUrl);
       res.json({ success: true, affiliate_url: affiliateUrl });
   } catch (error) {
