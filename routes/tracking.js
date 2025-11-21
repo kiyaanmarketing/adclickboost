@@ -62,7 +62,7 @@ router.post('/edit-url', async (req, res) => {
  
 
      await db.collection(collectionName).updateOne(
-      { hostname },
+      { hostname: editHostname },
       { $set: { affiliateUrl: newUrl, status: newStatus || existing.status || "active" } }
     );
 

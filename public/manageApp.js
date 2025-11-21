@@ -16,7 +16,9 @@ async function fetchTrackingUrls() {
         <td>${hostname}</td>
         <td>${affiliateUrl}</td>
         <td>
-          <button class="toggle" onclick="toggleStatus('${hostname}', '${status}')">
+          
+          <button class="toggle" onclick="toggleStatus('${hostname}', '${status === 'active' ? 'inactive' : 'active'}')">
+
             ${status === 'active' ? '✅ Active' : '❌ Inactive'}
           </button>
         </td>
@@ -88,7 +90,9 @@ document.getElementById('edit-submit-btn').addEventListener('click', async () =>
     const response = await fetch(`${apiUrl}/edit-url`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hostname: editHostname, newUrl, newStatus }),
+    
+      body: JSON.stringify({ editHostname: editHostname, newUrl, newStatus }),
+
     });
 
     const data = await response.json();
