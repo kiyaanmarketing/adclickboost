@@ -46,11 +46,11 @@ router.post('/add-url', async (req, res) => {
 
 // ✅ Edit hostname or URL
 router.post('/edit-url', async (req, res) => {
-  const { editHostname, newUrl, newStatus } = req.body;
+  const { hostname, newUrl, newStatus } = req.body;
 
   try {
     const db = getDB();
-    const existing = await db.collection(collectionName).findOne({ hostname: editHostname });
+    const existing = await db.collection(collectionName).findOne({ hostname });
 
     if (!existing) {
       return res.status(404).json({ message: 'Original hostname not found' });
@@ -62,8 +62,9 @@ router.post('/edit-url', async (req, res) => {
  
 
      await db.collection(collectionName).updateOne(
-      { hostname: editHostname },
+      { hostname },
       { $set: { affiliateUrl: newUrl, status: newStatus || existing.status || "active" } }
+      
     );
 
     res.json({ message: 'URL updated successfully' });

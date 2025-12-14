@@ -3,6 +3,8 @@ let editHostname = '';
 
 async function fetchTrackingUrls() {
   try {
+
+    
     const response = await fetch(`${apiUrl}/tracking-urls`);
     if (!response.ok) throw new Error(`Fetch failed with status=> ${response.status}`);
 
@@ -16,12 +18,13 @@ async function fetchTrackingUrls() {
         <td>${hostname}</td>
         <td>${affiliateUrl}</td>
         <td>
-          
-          <button class="toggle" onclick="toggleStatus('${hostname}', '${status === 'active' ? 'inactive' : 'active'}')">
-
+            <button class="toggle" onclick="toggleStatus('${hostname}', '${status}')">
             ${status === 'active' ? '✅ Active' : '❌ Inactive'}
           </button>
+          
+         
         </td>
+        
         <td class="actions">
           <button onclick="openEditModal('${hostname}', '${affiliateUrl}', '${status}')">Edit</button>
           <button class="delete" onclick="deleteUrl('${hostname}')">Delete</button>
